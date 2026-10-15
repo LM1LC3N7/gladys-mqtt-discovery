@@ -1,6 +1,6 @@
 {
   "name": "gladys-mqtt-discovery",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "Gladys Assistant external integration for the devices announced on an MQTT broker in the Home Assistant discovery format.",
   "type": "module",

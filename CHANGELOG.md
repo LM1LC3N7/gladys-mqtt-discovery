@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-10-15
+
 ### Fixed
 
 - Pressing the same remote button twice now reaches Gladys twice: button
@@ -35,5 +37,6 @@ the notes of the version's GitHub Release.
 - Sensor readings throttled to a configurable interval, all states within the
   Gladys rate limit.
 
-[Unreleased]: https://github.com/LM1LC3N7/gladys-mqtt-discovery/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/LM1LC3N7/gladys-mqtt-discovery/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/LM1LC3N7/gladys-mqtt-discovery/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/LM1LC3N7/gladys-mqtt-discovery/releases/tag/v0.1.1
