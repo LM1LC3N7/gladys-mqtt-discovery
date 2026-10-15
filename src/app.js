@@ -356,7 +356,8 @@ export class MqttDiscoveryApp {
         continue;
       }
       if (this.created.has(hit.featureId)) {
-        this.publisher.push(hit.featureId, { state: hit.value });
+        // Each press counts: two clicks in a row are two states, not one.
+        this.publisher.pushEvent(hit.featureId, { state: hit.value });
       }
       this.gladys
         .publishSceneEvent(SCENE_TRIGGERS.DEVICE_TRIGGER, {

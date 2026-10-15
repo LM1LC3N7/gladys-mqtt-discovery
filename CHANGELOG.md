@@ -10,6 +10,11 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+### Fixed
+
+- Pressing the same remote button twice now reaches Gladys twice: button
+  presses were sent like measurements, and an unchanged value was skipped.
+
 ## [0.1.1] - 2026-10-15
 
 ### Added

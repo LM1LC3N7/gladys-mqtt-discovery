@@ -11,6 +11,9 @@
 
 import { LIMITS, TIMINGS } from './constants.js';
 
+/** Presses kept while Gladys is unreachable or the budget is spent. */
+const MAX_QUEUED_EVENTS = 500;
+
 export class StatePublisher {
   constructor({
     gladys,
@@ -26,6 +29,8 @@ export class StatePublisher {
     this.budget = budget;
     /** featureId -> { state } | { text } */
     this.pending = new Map();
+    /** Button presses: every one counts, even twice the same value in a row. */
+    this.events = [];
     /** featureId -> last send time */
     this.lastSent = new Map();
     /** send times of the last minute */
@@ -59,8 +64,21 @@ export class StatePublisher {
     this.pending.set(featureId, value);
   }
 
+  /**
+   * A press of a button: never merged with the previous one nor skipped as
+   * unchanged (a second "click" is a new press, not a repeated value).
+   */
+  pushEvent(featureId, value) {
+    this.events.push({ device_feature_external_id: featureId, ...value });
+    if (this.events.length > MAX_QUEUED_EVENTS) {
+      this.events.shift();
+    }
+  }
+
   /** Forget a feature (deleted device): its pending value is dropped. */
   forget(featureIdPrefix) {
+    const owned = (id) => id === featureIdPrefix || id.startsWith(`${featureIdPrefix}:`);
+    this.events = this.events.filter((e) => !owned(e.device_feature_external_id));
     for (const map of [this.pending, this.lastSent]) {
       for (const key of map.keys()) {
         if (key === featureIdPrefix || key.startsWith(`${featureIdPrefix}:`)) {
@@ -83,8 +101,24 @@ export class StatePublisher {
     const now = this.now();
     this.window = this.window.filter((t) => now - t < 60_000);
     let room = this.budget - this.window.length;
+    let sent = 0;
+    if (room > 0 && this.events.length > 0) {
+      // publishStates, not publishChangedStates: equal values are distinct presses.
+      const events = this.events.splice(0, Math.min(room, 100));
+      try {
+        await this.gladys.publishStates(events);
+      } catch (err) {
+        this.events.unshift(...events);
+        throw err;
+      }
+      for (let i = 0; i < events.length; i += 1) {
+        this.window.push(now);
+      }
+      room -= events.length;
+      sent += events.length;
+    }
     if (room <= 0 || this.pending.size === 0) {
-      return 0;
+      return sent;
     }
     const batch = [];
     for (const [featureId, value] of this.pending) {
@@ -100,7 +134,7 @@ export class StatePublisher {
       room -= 1;
     }
     if (batch.length === 0) {
-      return 0;
+      return sent;
     }
     try {
       const result = await this.gladys.publishChangedStates(batch, {
@@ -112,7 +146,7 @@ export class StatePublisher {
       for (let i = 0; i < (result?.count ?? batch.length); i += 1) {
         this.window.push(now);
       }
-      return result?.count ?? batch.length;
+      return sent + (result?.count ?? batch.length);
     } catch (err) {
       // Keep the values for the next round, unless a newer one arrived meanwhile.
       for (const entry of batch) {

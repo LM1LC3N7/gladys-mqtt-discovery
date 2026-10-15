@@ -150,6 +150,19 @@ test('device triggers fire the scene trigger, and the button feature of a create
   client.deliver('remote1/action', 'nothing we know');
   await settle();
   assert.equal(gladys.fake.sceneEvents.length, 2);
+
+  // Two presses in a row are two states, even in the same flush window.
+  const button = remote.features[0].external_id;
+  const before = gladys.fake.states.filter((s) => s.device_feature_external_id === button).length;
+  client.deliver('remote1/action', 'single');
+  client.deliver('remote1/action', 'single');
+  await ctx.tick(TIMINGS.flushInterval);
+  const presses = gladys.fake.states.filter((s) => s.device_feature_external_id === button);
+  assert.equal(presses.length - before, 2);
+  assert.deepEqual(
+    presses.slice(-2).map((s) => s.state),
+    [1, 1],
+  );
 });
 
 test('off_delay turns a binary sensor back off', async (t) => {
