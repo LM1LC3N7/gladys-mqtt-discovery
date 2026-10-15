@@ -1,5 +1,16 @@
 # gladys-mqtt-discovery
 
+> **Withdrawn: duplicate of a Gladys core feature.** This integration was in
+> the list of candidate modules on the Gladys forum (P1 no. 110), but a review
+> showed that Gladys already does the same thing: since Gladys 4.86 (August
+> 2026), the built-in **MQTT** integration ("Appareils virtuels MQTT") reads
+> the Home Assistant discovery announcements of its broker and offers the
+> devices in its own Discovery tab. The repository no longer has the
+> `gladys-assistant-integration` topic, so the integration store does not list
+> it. If you installed it from GitHub, uninstall it: with the core MQTT
+> integration on the same broker, every device would show up twice. The code
+> stays here for reference.
+
 [Gladys Assistant](https://gladysassistant.com) external integration for the
 devices that announce themselves on an MQTT broker in the **Home Assistant
 MQTT discovery** format: Tasmota (SetOption19 1), ESPHome, OpenBeken, Valetudo,

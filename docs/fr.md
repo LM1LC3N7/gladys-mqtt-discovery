@@ -1,5 +1,12 @@
 # Découverte MQTT (format Home Assistant)
 
+> **Retirée : utilisez l'intégration MQTT de Gladys.** Depuis Gladys 4.86,
+> l'intégration « Appareils virtuels MQTT » du cœur lit les annonces de
+> découverte Home Assistant de son broker et propose les appareils dans son
+> onglet Découverte. Cette intégration faisait doublon : elle n'est plus listée
+> dans le store. Si vous l'avez installée, désinstallez-la, sinon chaque
+> appareil apparaîtrait en double.
+
 De nombreux firmwares et passerelles **s'annoncent eux-mêmes** sur un broker
 MQTT, au format de découverte de Home Assistant : chaque appareil publie la
 description de ses capteurs et de ses commandes sous `homeassistant/…/config`.

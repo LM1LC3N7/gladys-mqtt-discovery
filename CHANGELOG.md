@@ -10,6 +10,13 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+### Removed
+
+- The integration is withdrawn: it duplicates the Home Assistant MQTT
+  discovery built into the Gladys MQTT integration since Gladys 4.86. The
+  `gladys-assistant-integration` topic is removed, so the store no longer lists
+  it.
+
 ## [0.1.2] - 2026-10-15
 
 ### Fixed

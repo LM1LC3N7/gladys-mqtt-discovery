@@ -3,6 +3,23 @@
 Handoff document: what is done, what was decided, what comes next. Keep it
 up to date at the end of every milestone.
 
+## Withdrawn (2026-10-15)
+
+The integration duplicates a Gladys core feature: since Gladys 4.86 (PR
+GladysAssistant/Gladys#2805, August 2026) the built-in MQTT integration reads
+`homeassistant/#` and offers the devices in its Discovery tab (sensor,
+binary_sensor, switch, light, cover, lock, climate, button). It was in the
+forum's list of candidate modules (P1 no. 110), picked on 2026-10-15, and
+withdrawn the same day after review (forum topic 10385, posts 159, 168, 178
+struck through). The `gladys-assistant-integration` topic is removed; the
+milestones below are abandoned.
+
+What this code does beyond the core, should someone want to contribute it to
+Gladys instead: a safe Jinja subset for the templates, `command_template`,
+the `availability` topics, a configurable discovery prefix, the Zigbee2MQTT
+filter, `device_automation`/`event` as a scene trigger, and the `fan`,
+`number`, `scene`, `select`, `siren` and `text` components.
+
 ## Working method
 
 - One milestone at a time, one commit per milestone, tests green before moving on.

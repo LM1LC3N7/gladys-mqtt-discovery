@@ -4,6 +4,10 @@ Project rules for coding assistants (Claude Code reads this file) and for
 human contributors. Read **[TODO.md](./TODO.md) first**: status, decisions
 already taken and the next milestones.
 
+**Withdrawn on 2026-10-15**: duplicate of the Home Assistant MQTT discovery
+built into the Gladys MQTT integration (Gladys 4.86+). Do not re-add the
+`gladys-assistant-integration` topic; see TODO.md.
+
 ## What this is
 
 A Gladys Assistant **external integration** of type `device`: a Node.js

@@ -1,5 +1,12 @@
 # MQTT Discovery (Home Assistant format)
 
+> **Withdrawn: use the MQTT integration of Gladys instead.** Since Gladys 4.86,
+> the built-in MQTT integration reads the Home Assistant discovery
+> announcements of its broker and offers the devices in its Discovery tab.
+> This integration duplicated that feature: it is no longer listed in the
+> store. If you installed it, uninstall it, otherwise every device would show
+> up twice.
+
 Many firmwares and bridges **announce themselves** on an MQTT broker in the
 Home Assistant discovery format: each device publishes the description of its
 sensors and commands under `homeassistant/…/config`. This integration connects
