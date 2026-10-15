@@ -1,177 +1,179 @@
 {
   "manifest_version": 1,
   "type": "device",
-  "name": "Demo Devices Template",
+  "name": "MQTT Discovery (HA format)",
   "description": {
-    "en": "Starter template showing sensors, a switch, a dimmable light and a smart plug.",
-    "fr": "Template de démarrage : capteurs, interrupteur, lampe variable et prise connectée."
+    "en": "MQTT devices announced in the Home Assistant format: Tasmota, ESPHome, Valetudo, ebusd…",
+    "fr": "Les appareils MQTT annoncés au format Home Assistant : Tasmota, ESPHome, Valetudo, ebusd…"
   },
-  "version": "1.0.0",
-  "docker_image": "ghcr.io/gladysassistant/integration-template-js:1.0.0",
+  "version": "0.1.0",
+  "docker_image": "ghcr.io/lm1lc3n7/gladys-mqtt-discovery:0.1.0",
   "gladys_version": ">=5.1.0",
-  "cover_image": "https://raw.githubusercontent.com/GladysAssistant/integration-template-js/master/cover.png",
-  "categories": ["lighting", "security", "environment"],
-  "transports": ["local", "cloud"],
+  "cover_image": "https://raw.githubusercontent.com/LM1LC3N7/gladys-mqtt-discovery/main/cover.png",
+  "categories": ["protocols", "lighting", "environment"],
+  "transports": ["local"],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Getting started", "fr": "Pour commencer" },
+      "label": {
+        "en": "Your MQTT devices, discovered automatically",
+        "fr": "Vos appareils MQTT, découverts automatiquement"
+      },
       "description": {
-        "en": "The demo weather station reads real data from the free Open-Meteo API: pick the coordinates to observe. No account, no API key.",
-        "fr": "La station météo de démonstration lit de vraies données via l'API gratuite Open-Meteo : choisissez les coordonnées à observer. Pas de compte, pas de clé d'API."
+        "en": "Many devices and bridges announce themselves on an MQTT broker in the Home Assistant discovery format: Tasmota (SetOption19 1), ESPHome, OpenBeken, Valetudo, ESPSomfy RTS, ebusd, EMS-ESP, OpenMQTTGateway and Theengs (Bluetooth sensors), rtl_433 with its discovery script... This integration connects to YOUR broker, reads those announcements and offers every device in the Discovery tab: sensors, switches, lights, covers, locks, thermostats, buttons and remotes. Type the address of the broker as seen from the Gladys machine: its LAN IP address, not localhost. Not affiliated with Home Assistant.",
+        "fr": "De nombreux appareils et passerelles s'annoncent sur un broker MQTT au format de découverte Home Assistant : Tasmota (SetOption19 1), ESPHome, OpenBeken, Valetudo, ESPSomfy RTS, ebusd, EMS-ESP, OpenMQTTGateway et Theengs (capteurs Bluetooth), rtl_433 avec son script de découverte... Cette intégration se connecte à VOTRE broker, lit ces annonces et propose chaque appareil dans l'onglet Découverte : capteurs, interrupteurs, lampes, volets, serrures, thermostats, boutons et télécommandes. Saisissez l'adresse du broker vue depuis la machine Gladys : son adresse IP sur le réseau local, pas localhost. Sans lien avec Home Assistant."
       },
       "links": [
         {
-          "url": "https://open-meteo.com/en/docs",
-          "label": { "en": "Open-Meteo documentation", "fr": "Documentation Open-Meteo" }
+          "url": "https://github.com/LM1LC3N7/gladys-mqtt-discovery/blob/main/docs/fr.md",
+          "label": { "en": "Guide (French)", "fr": "Guide (français)" }
+        },
+        {
+          "url": "https://github.com/LM1LC3N7/gladys-mqtt-discovery/blob/main/docs/en.md",
+          "label": { "en": "Guide (English)", "fr": "Guide (anglais)" }
+        },
+        {
+          "url": "https://www.home-assistant.io/integrations/mqtt/#mqtt-discovery",
+          "label": {
+            "en": "The Home Assistant MQTT discovery format",
+            "fr": "Le format de découverte MQTT de Home Assistant"
+          }
         }
       ]
     },
     {
-      "key": "latitude",
-      "type": "number",
-      "label": { "en": "Latitude", "fr": "Latitude" },
+      "key": "broker_url",
+      "type": "string",
+      "label": { "en": "Broker address", "fr": "Adresse du broker" },
       "description": {
-        "en": "Latitude used for the demo weather sensor.",
-        "fr": "Latitude utilisée par le capteur météo de démonstration."
+        "en": "mqtt://host:1883, mqtts://host:8883 (TLS) or ws://host:port/path. A bare host name or IP address means mqtt:// on port 1883.",
+        "fr": "mqtt://hôte:1883, mqtts://hôte:8883 (TLS) ou ws://hôte:port/chemin. Un nom d'hôte ou une adresse IP seuls valent mqtt:// sur le port 1883."
       },
-      "placeholder": { "en": "e.g. 48.8566", "fr": "ex. 48.8566" },
-      "required": true,
-      "default": 48.8566,
-      "min": -90,
-      "max": 90
+      "placeholder": { "en": "mqtt://192.168.1.10:1883", "fr": "mqtt://192.168.1.10:1883" },
+      "required": true
     },
     {
-      "key": "longitude",
-      "type": "number",
-      "label": { "en": "Longitude", "fr": "Longitude" },
-      "description": {
-        "en": "Longitude used for the demo weather sensor.",
-        "fr": "Longitude utilisée par le capteur météo de démonstration."
+      "key": "username",
+      "type": "string",
+      "label": { "en": "User name", "fr": "Utilisateur" },
+      "placeholder": {
+        "en": "Leave empty for an anonymous broker",
+        "fr": "Laissez vide pour un broker anonyme"
       },
-      "placeholder": { "en": "e.g. 2.3522", "fr": "ex. 2.3522" },
-      "required": true,
-      "default": 2.3522,
-      "min": -180,
-      "max": 180
+      "required": false
     },
     {
-      "key": "unit",
-      "type": "select",
-      "label": { "en": "Temperature unit", "fr": "Unité de température" },
+      "key": "password",
+      "type": "secret",
+      "label": { "en": "Password", "fr": "Mot de passe" },
+      "required": false
+    },
+    {
+      "key": "discovery_prefix",
+      "type": "string",
+      "label": { "en": "Discovery prefix", "fr": "Préfixe de découverte" },
+      "description": {
+        "en": "The topic the devices announce themselves under. Keep homeassistant unless you changed it on your devices.",
+        "fr": "Le topic sous lequel les appareils s'annoncent. Gardez homeassistant, sauf si vous l'avez changé sur vos appareils."
+      },
+      "placeholder": { "en": "homeassistant", "fr": "homeassistant" },
       "required": false,
-      "default": "celsius",
-      "options": [
-        { "value": "celsius", "label": { "en": "Celsius", "fr": "Celsius" } },
-        { "value": "fahrenheit", "label": { "en": "Fahrenheit", "fr": "Fahrenheit" } }
-      ]
+      "default": "homeassistant"
     },
     {
-      "key": "poll_frequency",
-      "type": "number",
-      "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
+      "key": "verify_certificate",
+      "type": "boolean",
+      "label": {
+        "en": "Verify the TLS certificate of the broker (mqtts, wss)",
+        "fr": "Vérifier le certificat TLS du broker (mqtts, wss)"
+      },
       "description": {
-        "en": "How often sensors are polled, in seconds (one minute minimum).",
-        "fr": "Fréquence d'interrogation des capteurs, en secondes (une minute minimum)."
+        "en": "Turn off only for a broker with a self-signed certificate on your local network.",
+        "fr": "À désactiver seulement pour un broker au certificat auto-signé sur votre réseau local."
       },
       "required": false,
-      "default": 300,
-      "min": 60,
-      "max": 3600
+      "default": true
+    },
+    {
+      "key": "ignore_zigbee2mqtt",
+      "type": "boolean",
+      "label": {
+        "en": "Leave out the Zigbee2MQTT devices",
+        "fr": "Ignorer les appareils Zigbee2MQTT"
+      },
+      "description": {
+        "en": "Gladys has its own Zigbee2MQTT integration: keep this on to avoid having each Zigbee device twice.",
+        "fr": "Gladys a sa propre intégration Zigbee2MQTT : laissez activé pour ne pas avoir chaque appareil Zigbee en double."
+      },
+      "required": false,
+      "default": true
+    },
+    {
+      "key": "sensor_interval",
+      "type": "number",
+      "label": {
+        "en": "Minimum interval between two readings of a sensor (s)",
+        "fr": "Intervalle minimum entre deux mesures d'un capteur (s)"
+      },
+      "description": {
+        "en": "Some devices publish every second: Gladys keeps the last reading at this pace. Switches, buttons, motion and opening sensors are never delayed.",
+        "fr": "Certains appareils publient chaque seconde : Gladys garde la dernière mesure à ce rythme. Interrupteurs, boutons, détecteurs de mouvement et d'ouverture ne sont jamais retardés."
+      },
+      "required": false,
+      "default": 10,
+      "min": 0,
+      "max": 300
     }
   ],
   "actions": [
     {
-      "key": "test_weather",
-      "label": { "en": "Test the weather provider", "fr": "Tester le fournisseur météo" },
+      "key": "test_connection",
+      "label": { "en": "Test the connection", "fr": "Tester la connexion" },
       "timeout_seconds": 30
     },
     {
-      "key": "identify",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "fields": [
-        {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
-        }
-      ]
+      "key": "request_announce",
+      "label": {
+        "en": "Ask the devices to announce themselves",
+        "fr": "Demander aux appareils de s'annoncer"
+      },
+      "timeout_seconds": 15
     }
   ],
   "scene_triggers": [
     {
-      "key": "motion_detected",
-      "label": { "en": "Motion detected", "fr": "Mouvement détecté" },
+      "key": "device_trigger",
+      "label": { "en": "MQTT device trigger", "fr": "Déclencheur d'un appareil MQTT" },
       "description": {
-        "en": "A demo motion sensor saw a person or an animal move.",
-        "fr": "Un détecteur de démonstration a vu bouger une personne ou un animal."
+        "en": "A remote, a button or a device event announced over MQTT (Home Assistant device triggers and event entities).",
+        "fr": "Une télécommande, un bouton ou un événement d'appareil annoncé en MQTT (déclencheurs d'appareil et entités événement de Home Assistant)."
       },
       "fields": [
         {
           "key": "device",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Sensor", "fr": "Détecteur" }
+          "label": { "en": "Device", "fr": "Appareil" }
         },
         {
-          "key": "target",
-          "type": "multi_select",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" },
-          "options": [
-            { "value": "person", "label": { "en": "Person", "fr": "Personne" } },
-            { "value": "animal", "label": { "en": "Animal", "fr": "Animal" } }
-          ]
+          "key": "type",
+          "type": "string",
+          "label": { "en": "Type (e.g. button_short_press)", "fr": "Type (ex. button_short_press)" }
+        },
+        {
+          "key": "subtype",
+          "type": "string",
+          "label": { "en": "Subtype (e.g. button_1)", "fr": "Sous-type (ex. button_1)" }
         }
       ],
       "variables": [
         {
-          "key": "target",
+          "key": "payload",
           "type": "string",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" }
+          "label": { "en": "Received payload", "fr": "Message reçu" }
         }
       ]
-    }
-  ],
-  "scene_actions": [
-    {
-      "key": "identify_device",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "description": {
-        "en": "Make a device signal itself (the demo light blinks).",
-        "fr": "Fait se signaler un appareil (la lampe de démonstration clignote)."
-      },
-      "timeout_seconds": 15,
-      "fields": [
-        {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
-        }
-      ],
-      "outputs": [
-        {
-          "key": "signalled",
-          "type": "boolean",
-          "label": { "en": "Device signalled", "fr": "Appareil signalé" }
-        }
-      ]
-    }
-  ],
-  "widgets": [
-    {
-      "key": "demo_status",
-      "label": { "en": "Demo status", "fr": "État de la démo" },
-      "description": {
-        "en": "Live temperature and plug power, plug connection and observed location.",
-        "fr": "Température et puissance en direct, connexion de la prise, position observée."
-      },
-      "icon": "activity",
-      "action_timeout_seconds": 15
     }
   ]
 }

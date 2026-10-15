@@ -1,61 +1,121 @@
-# Demo Devices Template
+# MQTT Discovery (Home Assistant format)
 
-This is the user documentation of the integration. Gladys re-hosts this file
-and shows a permanent **Documentation** link to it in the Configuration screen
-(in the user's language, with English as the fallback) — it is when
-configuring that the user needs it most. Keep the short onboarding hints in
-the `section` blocks of the manifest `config_schema`; put the long
-step-by-step (screenshots, troubleshooting…) here.
+Many firmwares and bridges **announce themselves** on an MQTT broker in the
+Home Assistant discovery format: each device publishes the description of its
+sensors and commands under `homeassistant/…/config`. This integration connects
+to **your** broker, reads those announcements and offers every device in the
+**Discovery** tab of Gladys, ready to be added. Not affiliated with Home
+Assistant: only the message format is shared.
+
+> **Development version (0.1).** Developed and tested against a real Mosquitto
+> broker with simulated Tasmota, ESPHome, OpenMQTTGateway and ebusd
+> announcements, not yet with every firmware. Your feedback (and the
+> announcements of your devices) are welcome on the GitHub repository.
 
 ## What you get
 
-Six demo devices show up after installation: a weather station (real data
-from Open-Meteo), a switch, a dimmable light, a smart plug with power
-metering, a motion sensor and a camera.
+| Home Assistant component     | In Gladys                                                                                     |
+| ---------------------------- | --------------------------------------------------------------------------------------------- |
+| `sensor`                     | a sensor of the right category (temperature, humidity, power, energy, CO₂, battery…), or text |
+| `binary_sensor`              | motion, opening, leak, smoke, CO, low battery, tamper, vibration or input                     |
+| `switch`, `siren`, `fan`     | a switch (and a speed in % for a fan)                                                         |
+| `light`                      | a light: on/off, brightness, color temperature and color (default, json and template schemas) |
+| `cover`                      | a shutter or a curtain: open, close, stop, position                                           |
+| `lock`                       | a lock: lock, unlock, detailed state (moving, jammed)                                         |
+| `climate`                    | a thermostat: setpoint, room temperature, mode, preset, activity                              |
+| `select`, `text`, `number`   | a choice list, a text, a numeric setting                                                      |
+| `button`, `scene`            | a push button                                                                                 |
+| `device_automation`, `event` | a remote button (one per key) and the **MQTT device trigger** scene trigger                   |
 
-## Configuration
+The entities of one Home Assistant device (same `device` block) make **one
+Gladys device**. Entities disabled by default (`enabled_by_default: false`,
+usually diagnostics) are left out.
 
-1. Open the **Configuration** tab of the integration.
-2. Set the **latitude** and **longitude** the demo weather station should
-   observe (they default to Paris), and pick your temperature unit.
-   The **refresh interval** sets how often the weather station and the
-   plug's power are read: every 5 minutes by default, every minute at most.
-3. Save: the devices appear in the **Discovery** tab, ready to be added.
+## Compatible devices
 
-The **Prefer the local connection** toggle drives the demo plug: it reports
-the channel it actually uses as a badge (local or cloud), with an orange dot
-when it runs degraded (local refused, cloud fallback).
+Anything that publishes Home Assistant MQTT discovery, for example:
 
-## Actions
+- **Tasmota**: `SetOption19 1` in the console (legacy discovery).
+- **ESPHome**: an `mqtt:` block in the configuration (discovery is on by default).
+- **OpenBeken**, **Valetudo** (freed robot vacuums), **ESPSomfy RTS** (Somfy RTS shutters).
+- **ebusd** (Saunier Duval, Vaillant, Bulex… boilers), **EMS-ESP** (Buderus, Bosch, Nefit).
+- **OpenMQTTGateway** and **Theengs Gateway**: your **Bluetooth** sensors (Xiaomi,
+  Govee, Inkbird, BTHome…) through an ESP32, although the integration container
+  has no Bluetooth access.
+- **rtl_433** with its `rtl_433_mqtt_hass.py` script.
 
-- **Test the weather provider** — performs a live request to Open-Meteo and
-  shows the current temperature and humidity under the button.
-- **Identify a device** — pick one of your devices in the list and it will
-  signal itself (the demo light "blinks" in the logs).
+**Zigbee2MQTT** publishes this format too, but Gladys has its own Zigbee2MQTT
+integration: the "Leave out the Zigbee2MQTT devices" option (on by default)
+avoids duplicates.
+
+## Installation
+
+1. An MQTT broker reachable from the Gladys machine: the one of the Gladys MQTT
+   integration, or your own (Mosquitto…).
+2. In the configuration, type the **broker address** as seen from the Gladys
+   machine: its **LAN IP address**, not `localhost` (the integration runs in its
+   own container). Examples: `mqtt://192.168.1.10:1883`,
+   `mqtts://broker.lan:8883`, `ws://192.168.1.10:9001/mqtt`.
+3. The user name and password, if your broker requires them.
+4. Click **Test the connection**: the number of announcements and devices
+   received is shown.
+5. Open the **Discovery** tab and add the devices you want.
+
+Nothing shows up? Turn on Home Assistant discovery on your devices, then click
+**Ask the devices to announce themselves**: the integration publishes `online`
+on `homeassistant/status`, the signal most firmwares answer by publishing their
+announcements again.
+
+## Options
+
+| Option                            | Default         | Purpose                                                                    |
+| --------------------------------- | --------------- | -------------------------------------------------------------------------- |
+| Discovery prefix                  | `homeassistant` | change it only if your devices publish elsewhere                           |
+| Verify the TLS certificate        | on              | turn off for a broker with a self-signed certificate on your network       |
+| Leave out the Zigbee2MQTT devices | on              | avoids duplicates with the Gladys Zigbee2MQTT integration                  |
+| Minimum interval of a sensor      | 10 s            | a meter publishing every second is recorded at this pace only (last value) |
+
+Switches, buttons, motion and opening sensors are never delayed. Gladys accepts
+300 states per minute per integration: the integration only sends the values
+that change, and spreads the rest.
 
 ## Scenes
 
-The integration adds its own cards to the scene editor (Gladys 5.1 or
-later), under the **Integrations** category:
+- **Remote buttons** (`device_automation`, `event`) become "button" features:
+  use them like any button in the "Device state change" trigger (click, double
+  click, long press…).
+- The **MQTT device trigger** scene trigger receives every press, filtered by
+  device, type (`button_short_press`…) and subtype (`button_1`…), with the
+  received message in `payload`.
+- Sensors announcing an `off_delay` (radio doorbell, 433 MHz detector) go back
+  to 0 by themselves after that delay.
 
-- **Motion detected** (trigger) — starts the scene when a demo motion sensor
-  sees something move. Optionally pick the sensor and what moved (person,
-  animal); left empty, any detection matches. The following actions can
-  read what moved with `{{triggerEvent.data.target}}`.
-- **Identify a device** (action) — makes the chosen device signal itself.
-  It returns whether the device could signal itself, so the following
-  actions can depend on it.
+## How it works
 
-## Dashboard
-
-Add the **Demo status** widget to a dashboard: it shows the live
-temperature of the weather station and the power of the office plug, the
-connection the plug currently uses (orange when degraded) and the observed
-location. Its **Identify the light** button makes the demo light signal
-itself.
+The integration subscribes to `homeassistant/+/+/config` and
+`homeassistant/+/+/+/config` (including the Home Assistant 2024.11 "device"
+format), reads the announcements retained on the broker, builds the devices,
+then subscribes to the state topics it needs only. The templates of the
+announcements (`value_template`, `command_template`…) are interpreted by a safe
+subset of Jinja: the common filters and expressions (`value_json.x`, `float`,
+`round`, `is_defined`, conditions…), without ever running code. An empty
+announcement removes the device from Discovery. Availability shows on the
+device badge (local / unreachable).
 
 ## Troubleshooting
 
-The integration logs everything it does: check the integration logs from the
-Gladys UI (or `docker logs` on the host) with `LOG_LEVEL=debug` for the full
-detail.
+- **"The MQTT broker is unreachable"**: check the IP address and port, and that
+  the broker accepts connections from the LAN (`listener 1883` in Mosquitto 2).
+- **"refused the connection"**: wrong user name or password, or an ACL denying
+  read access to `homeassistant/#`.
+- **A device is missing**: click **Test the connection**, the summary lists the
+  entities not supported yet (vacuum, alarm… not yet); the details are in the
+  integration logs.
+- **A value does not update**: the template of the announcement may not be
+  supported yet; the logs say so once per entity.
+
+## Privacy
+
+Everything stays on your network: the integration only talks to your MQTT
+broker. The password is stored as a secret by Gladys and never appears in the
+logs.
