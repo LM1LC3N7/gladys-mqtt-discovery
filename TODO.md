@@ -27,7 +27,13 @@ up to date at the end of every milestone.
       `json_attributes_topic` as text features (opt-in).
 - [ ] **Milestone 4 — first release**: cover image, Docker image build check,
       `npx github:GladysAssistant/integration-store .`, Release workflow,
-      topic, forum thread in Développement.
+      topic, GHCR package public.
+
+## Forum
+
+No dedicated topic for this integration. Once the 10 integrations claimed on
+2026-10-15 are published, a single recap message in the general thread
+(/t/10385) lists each of them with its version and capabilities.
 
 ## Decisions
 
