@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-15
+
 ### Added
 
 - Connection to the user's MQTT broker (mqtt, mqtts, ws, wss; user name and
@@ -28,4 +30,5 @@ the notes of the version's GitHub Release.
 - Sensor readings throttled to a configurable interval, all states within the
   Gladys rate limit.
 
-[Unreleased]: https://github.com/LM1LC3N7/gladys-mqtt-discovery/commits/main
+[Unreleased]: https://github.com/LM1LC3N7/gladys-mqtt-discovery/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/LM1LC3N7/gladys-mqtt-discovery/releases/tag/v0.1.1
