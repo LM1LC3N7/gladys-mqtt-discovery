@@ -10,6 +10,13 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+### Fixed
+
+- Plain string labels for the select options (selects, climate modes and presets),
+  so Discovery lists the devices (the Gladys core refused the whole publication
+  because of `{ en }` or missing labels). A select option that is empty, padded
+  with spaces or repeated is left out instead of being published.
+
 ## [0.1.2] - 2026-10-15
 
 ### Fixed

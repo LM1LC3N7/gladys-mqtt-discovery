@@ -1251,9 +1251,28 @@ function mapNumber(e) {
   };
 }
 
+/**
+ * The options of a select, as the Gladys core accepts them: the core refuses the WHOLE
+ * publication for one blank option, one with surrounding whitespace (it could not be
+ * written back as it is) or one repeated, so those are left out, never published.
+ */
+function selectOptions(raw) {
+  const seen = new Set();
+  const options = [];
+  for (const option of Array.isArray(raw) ? raw : []) {
+    const value = String(option);
+    if (value.length === 0 || value !== value.trim() || seen.has(value)) {
+      continue;
+    }
+    seen.add(value);
+    options.push(value);
+  }
+  return options.slice(0, 100);
+}
+
 function mapSelect(e) {
   const c = e.config;
-  const options = (Array.isArray(c.options) ? c.options : []).map(String).slice(0, 100);
+  const options = selectOptions(c.options);
   return {
     features: [
       feature('option', e.name, {
@@ -1266,7 +1285,7 @@ function mapSelect(e) {
         keep_history: false,
         supported_options: options.map((value, i) => ({
           value,
-          label: { en: value },
+          label: value,
           sort_order: i + 1,
         })),
       }),
@@ -1320,6 +1339,21 @@ const HVAC_MODES = {
   cool: THERMOSTAT_MODE.COOLING,
   auto: THERMOSTAT_MODE.AUTO,
   heat_cool: THERMOSTAT_MODE.AUTO,
+};
+/** The label of each Gladys mode and preset: the core refuses an option without a string label. */
+const THERMOSTAT_MODE_LABELS = {
+  [THERMOSTAT_MODE.OFF]: 'Off',
+  [THERMOSTAT_MODE.HEATING]: 'Heating',
+  [THERMOSTAT_MODE.COOLING]: 'Cooling',
+  [THERMOSTAT_MODE.AUTO]: 'Auto',
+};
+const THERMOSTAT_PRESET_LABELS = {
+  [THERMOSTAT_PRESET.SCHEDULE]: 'Schedule',
+  [THERMOSTAT_PRESET.FROST]: 'Frost protection',
+  [THERMOSTAT_PRESET.AWAY]: 'Away',
+  [THERMOSTAT_PRESET.ECO]: 'Eco',
+  [THERMOSTAT_PRESET.NIGHT]: 'Night',
+  [THERMOSTAT_PRESET.COMFORT]: 'Comfort',
 };
 const HVAC_ACTIONS = {
   off: THERMOSTAT_OPERATING_STATE.IDLE,
@@ -1420,7 +1454,11 @@ function mapClimate(e) {
         read_only: typeof c.mode_command_topic !== 'string',
         has_feedback: typeof c.mode_state_topic === 'string',
         keep_history: false,
-        supported_options: supported.map((value, i) => ({ value, sort_order: i + 1 })),
+        supported_options: supported.map((value, i) => ({
+          value,
+          label: THERMOSTAT_MODE_LABELS[value],
+          sort_order: i + 1,
+        })),
       }),
     );
     readers.push(
@@ -1474,7 +1512,11 @@ function mapClimate(e) {
         read_only: typeof c.preset_mode_command_topic !== 'string',
         has_feedback: typeof c.preset_mode_state_topic === 'string',
         keep_history: false,
-        supported_options: supported.map((value, i) => ({ value, sort_order: i + 1 })),
+        supported_options: supported.map((value, i) => ({
+          value,
+          label: THERMOSTAT_PRESET_LABELS[value],
+          sort_order: i + 1,
+        })),
       }),
     );
     readers.push(
